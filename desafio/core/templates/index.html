@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="pt-br">
   <head>
@@ -10,6 +11,7 @@
       integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x"
       crossorigin="anonymous"
     />
+    <link href="{% static 'css/styles.css'%}" rel="stylesheet"/>
     <script
         src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"
         integrity="sha512-VCHVc5miKoln972iJPvkQrUYYq7XpxXzvqNfiul1H4aZDwGBGC0lq373KNleaB2LpnC2a/iNfE5zoRYmB4TRDQ=="
@@ -26,7 +28,7 @@
       </div>
     </nav>
     <div class="container">
-      {% for d in dados %}
+    <h2 style="text-align: center; margin-top: 10px;">Lista de Eventos</h3>
       <table id="table_id" class="table table-striped">
         <thead>
           <tr>
@@ -41,6 +43,7 @@
           </tr>
         </thead>
         <tbody>
+        {% for d in dados %}
           <tr>
             <td>{{d.id_event}}</td>
             <td>{{d.date_event}}</td>
@@ -51,21 +54,33 @@
             <td>{{d.latitude}}</td>
             <td>{{d.longitude}}</td>
           </tr>
+          {% endfor %}
         </tbody>
       </table>
-
-      {% endfor %}
-
-      <canvas id="myChart" width="400" height="400"></canvas>
+      
+      <hr/>
+      <h2 style="text-align: center; margin-top: 10px;">Eventos PIX e TED</h3>
+      <div class="row">
+        <div class="col">
+          <canvas id="myChart" width="200" height="200"></canvas>
+        </div>
+        <div class="col">
+          <canvas id="barChart" width="200" height="200"></canvas>
+        </div>
+      </div>
+      <hr/>
+      
 <script>
-var ctx = document.getElementById('myChart').getContext('2d');
+var ctx = document.getElementById("myChart");
+var transacoes_pix = JSON.parse('{{ pix|safe }}');
+var transacoes_ted = JSON.parse('{{ ted|safe }}');
 var myChart = new Chart(ctx, {
-    type: 'bar',
+    type: 'pie',
     data: {
-        labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
+        labels: ['PIX', 'TED'],
         datasets: [{
-            label: '# of Votes',
-            data: [12, 19, 3, 5, 2, 3],
+            label: 'Quantidade de transações ',
+            data: [transacoes_pix, transacoes_ted],
             backgroundColor: [
                 'rgba(255, 99, 132, 0.2)',
                 'rgba(54, 162, 235, 0.2)',
@@ -95,11 +110,54 @@ var myChart = new Chart(ctx, {
 });
 </script>
 
+<script>
+var ctx = document.getElementById("barChart");
+var transacoes_pix = JSON.parse('{{ pix|safe }}');
+var transacoes_ted = JSON.parse('{{ ted|safe }}');
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: ['PIX', 'TED'],
+        datasets: [{
+            label: ['QTD Transações'],
+            data: [transacoes_pix, transacoes_ted],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
+      
+      <div class="row">
+      <h2 style="text-align: center; margin-top: 10px;">Localização geográfica de cada evento</h3>
       {%for d in dados %}
-      <h3>Usuário: {{d.user}}</h3>
+        <div class="col">
+          <h3>ID do Evento: {{d.id_event}}</h3>
       <p>Latitude: {{d.latitude}}</p>
       <p>Longitude: {{d.longitude}}</p>
-      <div class="col">
         <iframe
           width="600"
           height="450"
@@ -110,9 +168,11 @@ var myChart = new Chart(ctx, {
     &q={{d.latitude}}, {{d.longitude}}"
         >
         </iframe>
+      <hr/>
+        </div>
+           {% endfor %}
       </div>
-      {% endfor %}
-    </div>
+   
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.2/dist/chart.min.js"></script>
 

@@ -59,7 +59,7 @@
       </table>
       
       <hr/>
-      <h2 style="text-align: center; margin-top: 10px;">Eventos PIX e TED</h3>
+      <h2 style="text-align: center; margin-top: 10px;">Gráficos de Eventos</h3>
       <div class="row">
         <div class="col">
           <canvas id="myChart" width="200" height="200"></canvas>
@@ -67,10 +67,38 @@
         <div class="col">
           <canvas id="barChart" width="200" height="200"></canvas>
         </div>
+        <div class="col">
+          <canvas id="locationsChart" width="200" height="200"></canvas>
+        </div>
       </div>
       <hr/>
       
-<script>
+
+      
+      <div class="row">
+      <h2 style="text-align: center; margin-top: 10px;">Localização geográfica de cada evento</h3>
+      {%for d in dados %}
+        <div class="col">
+          <h3>ID do Evento: {{d.id_event}}</h3>
+      <p>Latitude: {{d.latitude}}</p>
+      <p>Longitude: {{d.longitude}}</p>
+        <iframe
+          width="600"
+          height="450"
+          style="border: 0"
+          loading="lazy"
+          allowfullscreen
+          src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDzBL_MZJvdzHpX91zoD6Ob5nNgY2A4W-c
+    &q={{d.latitude}}, {{d.longitude}}"
+        >
+        </iframe>
+      <hr/>
+        </div>
+           {% endfor %}
+      </div>
+
+    
+    <script>
 var ctx = document.getElementById("myChart");
 var transacoes_pix = JSON.parse('{{ pix|safe }}');
 var transacoes_ted = JSON.parse('{{ ted|safe }}');
@@ -150,28 +178,47 @@ var myChart = new Chart(ctx, {
 });
 </script>
 
-      
-      <div class="row">
-      <h2 style="text-align: center; margin-top: 10px;">Localização geográfica de cada evento</h3>
-      {%for d in dados %}
-        <div class="col">
-          <h3>ID do Evento: {{d.id_event}}</h3>
-      <p>Latitude: {{d.latitude}}</p>
-      <p>Longitude: {{d.longitude}}</p>
-        <iframe
-          width="600"
-          height="450"
-          style="border: 0"
-          loading="lazy"
-          allowfullscreen
-          src="https://www.google.com/maps/embed/v1/place?key=AIzaSyDzBL_MZJvdzHpX91zoD6Ob5nNgY2A4W-c
-    &q={{d.latitude}}, {{d.longitude}}"
-        >
-        </iframe>
-      <hr/>
-        </div>
-           {% endfor %}
-      </div>
+<script>
+var ctx = document.getElementById("locationsChart");
+var locations = JSON.parse('{{ location|safe }}');
+var total_locations = JSON.parse('{{ total_location|safe }}');
+var hab_locations = total_locations - locations
+var myChart = new Chart(ctx, {
+    type: 'pie',
+    data: {
+        labels: ['Localizações fora do Habitual', 'Localização habitual'],
+        datasets: [{
+            label: 'Quantidade de transações ',
+            data: [locations, hab_locations],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    },
+    options: {
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+</script>
+
    
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.3.2/dist/chart.min.js"></script>
